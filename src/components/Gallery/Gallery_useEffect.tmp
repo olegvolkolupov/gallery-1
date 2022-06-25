@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+import GalleryItem from "./GalleryItem";
+import ModalWindow from "./ModalWindow";
+
+import galleryItems from "./galleryItems.js";
+
+export default function Gallery() {
+  let [isModalVisible, setIsModalVisible] = useState(false);
+  let [bigImageSrc, setBigImageSrc] = useState("");
+  let [bigImageAlt, setBigImageAlt] = useState("");
+  let [imageIndex, setImageIndex] = useState(-1);
+
+  useEffect(() => {
+    if (imageIndex >= 0) {
+      setBigImageSrc(galleryItems[imageIndex].original);
+      setBigImageAlt(galleryItems[imageIndex].description);
+    }
+  }, [imageIndex]);
+
+  const openModal = (idx) => {
+    setImageIndex(Number(idx));
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setBigImageSrc("");
+    setBigImageAlt("");
+    setImageIndex(-1);
+  };
+
+  const goToRight = () => {
+    if (imageIndex === galleryItems.length - 1) {
+      setImageIndex(0);
+    } else {
+      setImageIndex(imageIndex + 1);
+    }
+  };
+
+  const goToLeft = () => {
+    if (imageIndex === 0) {
+      setImageIndex(galleryItems.length - 1);
+    } else {
+      setImageIndex(imageIndex - 1);
+    }
+  };
+
+  return (
+    <>
+      <ul className="gallery">
+        {galleryItems.map((item) => (
+          <GalleryItem
+            key={uuidv4()}
+            altDescription={item.description}
+            srcPreview={item.preview}
+            onImageClick={openModal}
+            dataIndex={galleryItems.indexOf(item)}
+          />
+        ))}
+      </ul>
+      {isModalVisible && (
+        <ModalWindow
+          closeModal={closeModal}
+          goLeft={goToLeft}
+          goRight={goToRight}
+          imgSrc={bigImageSrc}
+          imgAlt={bigImageAlt}
+        />
+      )}
+    </>
+  );
+}
